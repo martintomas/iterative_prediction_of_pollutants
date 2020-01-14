@@ -1,0 +1,93 @@
+#!/bin/bash
+
+#ITERATION VARIABLES
+export ITERFROM=4 #num of first iteration, first iteration is special (learning is not used)
+export ITERTO=4 #num of last iteration
+export SIMFROM=0 #first number of simulation
+export FIRSTMAXSIM=100 #num of simulations in first iteration
+export MAXSIM=100 #num of simulations in every iteration
+
+#APP VARIABLES
+export HOMEDIR="/storage/brno2/home/martintomas/multi-iteration"
+export SAVEDIR="${HOMEDIR}/save"
+export INITDIR="${HOMEDIR}/init" #INITSOIL and INITSFOC are stored there
+export INITSOIL="AI219_pop_stor_1983_87.nc" #init soil concentrations
+export INITSFOC="resampled-organic-carbon-map.nc"
+export INITTSOIL="resampled-soil-type-map.nc"
+export INITGRID="GRIDCRO2D_aa2006test"
+export INITOBSERV="artificial-measurements.rda" #locations of observations
+export SCRIPTDIR="${HOMEDIR}/scripts"
+
+#LEARNING MODULE + RANDOM GENERATION OF FIRST ITERATION
+export SOILSAVEDIR="${SAVEDIR}/soil"
+export LEARNINGSAVEDIR="${SAVEDIR}/learning"
+export LEARNINGMODULE="FANN" #which sw you want to use (now only fann is available)
+export LEARNINGDB="learning.db" #saved in init dir
+#export SCRATCHDIR="/storage/brno2/home/martintomas/scratch2" #comment, it is only for testing
+export SAVESCRATCH="${SCRATCHDIR}/save"
+export CORES=16 #number of cpus
+export TESTING=1 #1==yes, 0==no
+export MINDATA=0.1 #minimal data (for distance or correlations)
+export MAXDATA=1 #maximal data (for distance or correlations)
+export MAXNA=80 #how many percent of NA can have one learning attempt
+export METHOD1="add" #can be add or noadd
+export METHOD2="nonuniform" #can be uniform or nonuniform
+export TYPESELECT="corr" #can be all, dist or corr
+export TYPELEARNING="regions" #can be cell or region or regions
+export REGIONSDIR=${SCRATCHDIR} #where is file regions.csv (used for typelearning==regions) (if you use REGIONS PREPARATION to generate it, it is on scratch, otherwise, define other path)
+ #REVERSE LEARNING
+ export USEREVERSELEARNING=0 #1==yes, 0==no
+ export RTYPESELECT="corr" #can be all, dist or corr
+ export USEKRIGING=1 #if kriging alg is used to create new inputs (otherwise, the closest neighbor is used)
+ export RMINDATA=0.3 #minimal data (for distance or correlations)
+ export RMAXDATA=1 #maximal data (for distance or correlations)
+ export RNUM=100 #number of examples used for reverse learning (includes even predicted ones) #should be bigger then MAXSIM
+ export RTESTING=1 #1==yes, 0==no !!! testing is really time consuming
+ export KEEPDATAINRAM=1 #after data creation, all is keeped in RAM (much faster), but together with testing can be really memory consuming, change to 0 to avoid this behavior
+ #REGIONS PREPARATION - use classification method to create multiple regions map
+ export USEREGPREPARATION=0 #1==yes, 0==no
+ export USEONLYONCE=1 #1==yes, 0==no #regions are created only at first iteration, otherwise, regions are created every iteration
+ export MINREGIONS=100
+ export MAXREGIONS=1000
+ export METHOD3="classification" #can be regression, classification (two different approach are used) or analysis (learning is skipped!! for this choice)
+ export SHORTENPRED=1 #1==yes, 0==no #=>from predicted regions are imediately created predicted input values (normal prediction is avoided)
+
+#CMAQ VARIABLES
+ export HOMECMAQDIR="/storage/brno2/home/martintomas/cmaq471_bap_GLL1"
+ #information for first day                                                                                                               
+ export YEAR=2006
+ export MONTH=01
+ export DAY=01
+ export NUMDAY=7 #number of simulated days
+ #OTHER VARUABLES CONNECTED WITH SCRATCH                                                                              
+ export EMISDIR="${HOMECMAQDIR}/data/emis/emis-2006" #where are emis saved (jana directory or sym link)
+ export MCIPDIR="${HOMECMAQDIR}/data/mcip3/mcip-2006" #where are mcip saved (jana directory or sym link)
+ export EMISNAME="ren_POA36" #name of emis file, without date
+ export RESULTNAME="CCTM_e1a_Linux2_x86_64ifort.benchmark"
+ export CGRIDNAME="${RESULTNAME}.CGRID" #end and date will be added later 
+ export ACONNAME="${RESULTNAME}.ACONC"
+ export CCTMSAVEDIR="${SAVEDIR}/cctm"
+ export CCTMSAVEDIRR="${SAVEDIR}/cctm-reduced"
+ #Volatilization                                                                                                                          
+ export VOLATILIZATION=1 # do you want compute volatilization? 1(YES), 0(NO)
+ export VOLSCRIPTDIR="${HOMECMAQDIR}/scripts/volatilization" #where are stored R scripts for volatilization
+ export VOLSAVEDIR="${SAVEDIR}/vol" #where is computed volatilization stored
+ export METFILE="METCRO2D_aa2006test" #file used by volatilization function (SOIM1 & TEMPG), also used by temp-mean script
+ export WATERFILE="GRIDCRO2D_aa2006test" #file used by volatilization function (where is water)
+
+#R VARIABLES
+#module add openmpi-1.6-intel #need for RMPI #is added localy
+#module add R-3.0.3
+module add R-3.1.1
+export R_LIBS=/storage/brno2/home/martintomas/R-packages:$R_LIBS
+
+#PYTHON VARIABLES                                                                                                            
+module add python-2.7.5
+module add numpy-1.7.1-py2.7
+module add scipy-0.12.0-py2.7
+export PYTHONPATH=/storage/brno2/home/martintomas/CMAQv5.0.1/libs/python/lib/python2.7/site-packages:$PYTHONPATH
+export PYTHONPATH=/storage/brno2/home/martintomas/CMAQv5.0.1/libs/python/lib/python2.7/site-packages/fann2-1.0.0-py2.7-linux-x86_64.egg/fann2:$PYTHONPATH
+export PYTHONPATH=/storage/brno2/home/martintomas/CMAQv5.0.1/libs/python/lib/python2.7/site-packages/sklearn:$PYTHONPATH
+export PYTHONPATH=${SCRIPTDIR}:$PYTHONPATH #for my own modules
+export LD_LIBRARY_PATH=/storage/brno2/home/martintomas/fann/lib:$LD_LIBRARY_PATH
+export PATH=/storage/brno2/home/martintomas/swig/bin:$PATH

@@ -1,0 +1,22 @@
+# Function to calculate the organic carbon partition coefficient based on
+# octanol-water partition coefficient
+# ---Inputs---
+# logKow    : octanol-water partition coefficient
+# gasname   : Compound of interest (list can expand in future)
+
+KocF <- function(gasname) {
+  if(gasname == 'BAP') {    
+    logKow <- 6.13
+  } else if(gasname == 'ANT') {    
+    logKow <- 4.68
+  } else if(gasname == 'PCB28') {    
+    logKow <- 5.66
+  } else if(gasname == 'PCB153') {
+   logKow <- 7.19
+  } else if(gasname == 'PCB180') {    
+   logKow <- 7.16
+  }
+  Kow <- 10^logKow
+  Koccoeff <- 0.41*Kow
+  return(Koccoeff)
+}

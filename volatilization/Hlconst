@@ -1,0 +1,32 @@
+# Function to calculate the dimensionless Henry's Law constant based on 
+# the Van't Hoff extrapolation (temperature dependence)
+# ---Inputs---
+# R         : molar gas constant (J/mol-K) 
+# A         : Henry's law constants at 298.15K (M/atm)
+# E         : enthalpy (like activation energy) (K)
+# Temp      : Temperature (from MCIP) (K)
+# gasname   : Compound of interest (list can expand in future)
+
+HlconstF <- function(gasname,Temp) {
+  R <- 8.314472
+  if(gasname=='BAP')  {    
+    A <- 3.7E+03
+    E <- 8.6E+03
+  } else if(gasname=='FLOURENE') {    
+    A <- 1.4E+01
+    E <- 7.0E+03
+  } else if(gasname=='PCB28') {   
+    A <- 3.2E+00
+    E <-  6.3E+03
+  } else if(gasname=='PCB153') { 
+    A <- 5.0E+00
+    E <- 7.6E+03
+  } else if(gasname=='PCB180') {    
+    A <- 1.2E+01
+    E <- 7.6E+03
+  }
+  TFAC <- ( 298.0 - Temp) / ( 298.0 * Temp )
+  KH <- A * exp(E*TFAC)
+  Hlcdim <- KH/(R*Temp)
+  return(Hlcdim)
+}
