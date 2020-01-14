@@ -1,1 +1,3 @@
-# iterative_prediction_of_pollutants
+# Iterative Prediction of Pollutants
+
+System for modeling air quality issues
